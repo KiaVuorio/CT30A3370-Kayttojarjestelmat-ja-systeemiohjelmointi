@@ -1,9 +1,0 @@
----
-triple:          'x86_64-apple-darwin'
-binary-path:     reverse
-relocations:
-  - { offsetInCU: 0x26, offset: 0x26, size: 0x8, addend: 0x0, symName: _push, symObjAddr: 0x0, symBinAddr: 0x100000B20, symSize: 0x70 }
-  - { offsetInCU: 0x42, offset: 0x42, size: 0x8, addend: 0x0, symName: _push, symObjAddr: 0x0, symBinAddr: 0x100000B20, symSize: 0x70 }
-  - { offsetInCU: 0x86, offset: 0x86, size: 0x8, addend: 0x0, symName: _free_list, symObjAddr: 0x70, symBinAddr: 0x100000B90, symSize: 0x50 }
-  - { offsetInCU: 0xB8, offset: 0xB8, size: 0x8, addend: 0x0, symName: _main, symObjAddr: 0xC0, symBinAddr: 0x100000BE0, symSize: 0x30C }
-...

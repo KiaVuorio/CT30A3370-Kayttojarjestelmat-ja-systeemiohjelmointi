@@ -81,7 +81,8 @@ int exec_command(char **args, int arg_count, char *redirect_file)
             print_custom_error(error_cd_args);
             return 1;
         }
-        else if (chdir(args[1]) != 0)
+
+        if (chdir(args[1]) != 0)
         {
             print_custom_error(error_cd_fail);
             return 1;
@@ -102,7 +103,7 @@ int exec_command(char **args, int arg_count, char *redirect_file)
         snprintf(fullpath, sizeof(fullpath), "%s/%s", path_list[i], args[0]);
         if (access(fullpath, X_OK) == 0)
         {
-            pid_t pid = fork();
+            const pid_t pid = fork();
             if (pid == 0)
             {
                 if (redirect_file != NULL)
@@ -121,16 +122,15 @@ int exec_command(char **args, int arg_count, char *redirect_file)
                 print_custom_error(error_exec_fail);
                 exit(1);
             }
-            else if (pid > 0)
+
+            if (pid > 0)
             {
                 waitpid(pid, NULL, 0);
                 return 0;
             }
-            else
-            {
-                print_custom_error(error_fork_fail);
-                return 1;
-            }
+
+            print_custom_error(error_fork_fail);
+            return 1;
         }
     }
 
@@ -146,7 +146,7 @@ void parse_line(char *line)
     int cmd_count = 0;
 
     // Split parallel commands on '&'
-    char *cmd = strtok(line, "&");
+    const char *cmd = strtok(line, "&");
     while (cmd != NULL)
     {
         parallel_cmds[cmd_count++] = strdup(cmd);

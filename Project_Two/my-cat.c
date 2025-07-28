@@ -20,10 +20,12 @@ int main(int argc, char *argv[])
     }
 
     for (int i = 1; i < argc; i++)
-    { // Open the file in read mode
+    {
+        // Open the file in read mode
         FILE *fp = fopen(argv[i], "r");
         if (!fp)
-        { // If fopen fails, print error message and exit with failure
+        {
+            // If fopen fails, print error message and exit with failure
             fprintf(stderr, "my-cat: cannot open file\n");
             return 1;
         }

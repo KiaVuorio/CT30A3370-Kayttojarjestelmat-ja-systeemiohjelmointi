@@ -4,24 +4,24 @@
 #include <string.h>
 
 int main(int argc, char *argv[])
-{ // Check for minimum arguments: program + search term
+{
+    // Check for minimum arguments: program + search term
     if (argc < 2)
     {
         fprintf(stderr, "my-grep: searchterm [file ...]\n");
         return 1;
     }
 
-    char *search = argv[1];
-    FILE *fp;
-    char *line = NULL;
+    const char *search = argv[1];
+    char *line = nullptr;
     size_t len = 0;
-    ssize_t read;
 
     if (argc == 2)
     {
         // No files given, read from standard input (stdin)
-        while ((read = getline(&line, &len, stdin)) != -1)
-        { // Check if the search term is in the current line (case sensitive)
+        while (getline(&line, &len, stdin) != -1)
+        {
+            // Check if the search term is in the current line (case-sensitive)
             if (strstr(line, search))
             {
                 fputs(line, stdout);
@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
 
     for (int i = 2; i < argc; i++)
     {
-        fp = fopen(argv[i], "r");
+        FILE *fp = fopen(argv[i], "r");
         if (!fp)
         {
             fprintf(stderr, "my-grep: cannot open file\n");
@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
         }
 
         // Read lines one by one from the file using getline
-        while ((read = getline(&line, &len, fp)) != -1)
+        while (getline(&line, &len, fp) != -1)
         {
             if (strstr(line, search))
             {

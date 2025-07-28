@@ -4,7 +4,7 @@ TARGET = reverse
 
 all: $(TARGET)
 
-$(TARGET): reverse.c
+$(TARGET): $(TARGET).c
 	$(CC) $(CFLAGS) -o $(TARGET) reverse.c
 
 clean:
