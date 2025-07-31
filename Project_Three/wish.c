@@ -19,7 +19,7 @@ char *error_exec_fail = "Error: exec failed\n";
 char *error_file_open = "Error: cannot open file for redirection\n";
 char *error_generic = "An error has occurred\n";
 
-char **path_list = NULL;
+char **path_list = nullptr;
 int path_count = 0;
 
 // Function to print any error message to stderr
@@ -29,18 +29,21 @@ void print_custom_error(const char *msg)
 }
 
 // Sets (or resets) the shell path variable with new directories
-void set_path(char **args, int count)
+void set_path(char **args, const int count)
 {
     if (path_list != NULL)
     {
-        for (int i = 0; i < path_count; i++)
+        for (int i = 0; i < path_count; i++) {
             free(path_list[i]);
+            path_list[i] = nullptr;
+        }
         free(path_list);
+        path_list = nullptr;
     }
 
     if (count == 0)
     {
-        path_list = NULL;
+        path_list = nullptr;
         path_count = 0;
         return;
     }
@@ -58,7 +61,7 @@ void set_path(char **args, int count)
 int exec_command(char **args, int arg_count, char *redirect_file)
 {
     if (args[0] == NULL)
-        return 0;
+        exit(0);
 
     // Built-in commands
     if (strcmp(args[0], "exit") == 0)
@@ -68,10 +71,7 @@ int exec_command(char **args, int arg_count, char *redirect_file)
             print_custom_error(error_invalid_exit);
             return 1; // error, don't exit shell
         }
-        else
-        {
-            exit(0); // valid exit: terminate shell immediately
-        }
+        exit(0); // valid exit: terminate shell immediately
     }
 
     if (strcmp(args[0], "cd") == 0)
@@ -101,42 +101,30 @@ int exec_command(char **args, int arg_count, char *redirect_file)
     {
         char fullpath[1024];
         snprintf(fullpath, sizeof(fullpath), "%s/%s", path_list[i], args[0]);
+
         if (access(fullpath, X_OK) == 0)
         {
-            const pid_t pid = fork();
-            if (pid == 0)
-            {
-                if (redirect_file != NULL)
-                {
-                    int fd = open(redirect_file, O_CREAT | O_WRONLY | O_TRUNC, S_IRWXU);
-                    if (fd < 0)
-                    {
-                        print_custom_error(error_file_open);
-                        exit(1);
-                    }
-                    dup2(fd, STDOUT_FILENO);
-                    dup2(fd, STDERR_FILENO);
-                    close(fd);
-                }
-                execv(fullpath, args);
-                print_custom_error(error_exec_fail);
-                exit(1);
-            }
-
-            if (pid > 0)
-            {
-                waitpid(pid, NULL, 0);
-                return 0;
-            }
-
-            print_custom_error(error_fork_fail);
-            return 1;
+			if (redirect_file != NULL)
+			{
+				const int fd = open(redirect_file, O_CREAT | O_WRONLY | O_TRUNC, S_IRWXU);
+				if (fd < 0)
+				{
+					print_custom_error(error_file_open);
+					exit(1);
+				}
+				dup2(fd, STDOUT_FILENO);
+				dup2(fd, STDERR_FILENO);
+				close(fd);
+			}
+			execv(fullpath, args);
+			print_custom_error(error_exec_fail);
+			exit(1);
         }
     }
 
     // Command not found on any path
     print_custom_error(error_cmd_not_found);
-    return 1;
+    exit(1);
 }
 
 // Parses and executes a full line of input (can contain multiple parallel commands)
@@ -150,7 +138,7 @@ void parse_line(char *line)
     while (cmd != NULL)
     {
         parallel_cmds[cmd_count++] = strdup(cmd);
-        cmd = strtok(NULL, "&");
+        cmd = strtok(nullptr, "&");
     }
 
     pid_t children[MAX_TOKENS];
@@ -160,7 +148,7 @@ void parse_line(char *line)
     {
         char *args[MAX_TOKENS];
         int arg_count = 0;
-        char *redirect_file = NULL;
+        char *redirect_file = nullptr;
 
         // Handle redirection (>)
         char *redirection = strchr(parallel_cmds[i], '>');
@@ -174,7 +162,7 @@ void parse_line(char *line)
                 redirection++;
 
             char *filename = strtok(redirection, " \t\n");
-            char *extra = strtok(NULL, " \t\n");
+            const char *extra = strtok(nullptr, " \t\n");
             if (filename == NULL || extra != NULL)
             {
                 print_custom_error(error_redirection);
@@ -189,9 +177,10 @@ void parse_line(char *line)
         while (token != NULL)
         {
             args[arg_count++] = token;
-            token = strtok(NULL, " \t\n");
+            token = strtok(nullptr, " \t\n");
         }
-        args[arg_count] = NULL;
+
+        args[arg_count] = nullptr;
 
         if (args[0] == NULL)
         {
@@ -208,14 +197,16 @@ void parse_line(char *line)
         }
         else
         {
+			//exec_command(args, arg_count, redirect_file);
             // Fork for other commands
-            pid_t pid = fork();
+            const pid_t pid = fork();
             if (pid == 0)
             {
                 exec_command(args, arg_count, redirect_file);
-                exit(0);
+                exit(1);
             }
-            else if (pid > 0)
+
+            if (pid > 0)
             {
                 children[child_count++] = pid;
                 free(parallel_cmds[i]);
@@ -224,6 +215,7 @@ void parse_line(char *line)
             {
                 print_custom_error(error_fork_fail);
                 free(parallel_cmds[i]);
+				exit(1);
             }
         }
     }
@@ -231,7 +223,7 @@ void parse_line(char *line)
     // Wait for all forked children to finish
     for (int i = 0; i < child_count; i++)
     {
-        waitpid(children[i], NULL, 0);
+        waitpid(children[i], nullptr, 0);
     }
 }
 
@@ -255,6 +247,11 @@ int main(int argc, char *argv[])
             print_custom_error(error_generic);
             exit(1);
         }
+
+		int fd = fileno(input);
+		input = fdopen(dup(fd), "r");
+		close(fd);	
+
         batch_mode = 1;
     }
 
@@ -263,7 +260,7 @@ int main(int argc, char *argv[])
     path_list[0] = strdup("/bin");
     path_count = 1;
 
-    char *line = NULL;
+    char *line = nullptr;
     size_t len = 0;
 
     while (1)
