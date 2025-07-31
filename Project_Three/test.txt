@@ -1,6 +1,0 @@
-exit now
-cd
-cd invalidpath
-path
-foobar
-exit
