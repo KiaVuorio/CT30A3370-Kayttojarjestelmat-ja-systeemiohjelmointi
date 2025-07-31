@@ -287,8 +287,3 @@ int main(int argc, char *argv[])
 
     return 0;
 }
-
-//
-// ei toimi:
-//- redirection test
-//- parallel test
