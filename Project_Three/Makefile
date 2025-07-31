@@ -1,11 +1,11 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -g
-TARGET = reverse
+TARGET = wish
 
 all: $(TARGET)
 
 $(TARGET): $(TARGET).c
-	$(CC) $(CFLAGS) -o $(TARGET) reverse.c
+	$(CC) $(CCFLAGS) $(TARGET).c -o $(TARGET)
 
 clean:
 	rm -f $(TARGET)

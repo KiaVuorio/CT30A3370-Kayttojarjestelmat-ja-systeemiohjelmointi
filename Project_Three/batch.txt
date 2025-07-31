@@ -1,9 +1,3 @@
-# batch.txt
 echo hello
-ls -l > output.txt
-cat output.txt & echo done
-cd /
-pwd
-path /bin /usr/bin
-fakecmd
-exit
+echo hello
+ls -al > output.txt

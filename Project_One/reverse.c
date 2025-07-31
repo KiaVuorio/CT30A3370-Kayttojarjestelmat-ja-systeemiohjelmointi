@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define INITIAL_CAPACITY 128
 
 // Define a node for a singly linked list to store lines of input
 typedef struct Node
@@ -27,10 +26,9 @@ Node *push(Node *head, char *line)
 // Free all memory associated with the linked list
 void free_list(Node *head)
 {
-    Node *tmp;
     while (head != NULL)
     {
-        tmp = head;
+        Node *tmp = head;
         head = head->next;
         free(tmp->line);
         free(tmp);
@@ -80,10 +78,10 @@ int main(int argc, char *argv[])
         }
     }
 
-    char *line = NULL;
+    char *line = nullptr;
     size_t len = 0;
     ssize_t read;
-    Node *head = NULL;
+    Node *head = nullptr;
 
     // Read all lines and push them to the linked list (in reverse order)
     while ((read = getline(&line, &len, input)) != -1)

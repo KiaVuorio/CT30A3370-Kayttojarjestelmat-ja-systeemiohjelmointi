@@ -10,19 +10,9 @@ void compress_file(FILE *fp)
 
     while ((c = fgetc(fp)) != EOF)
     {
-        if (c == prev)
+        if (c != prev)
         {
-            count++;
-            // If count reaches max unsigned int, flush the run
-            if (count == 0xFFFFFFFF)
-            {
-                fwrite(&count, sizeof(count), 1, stdout);
-                fputc(prev, stdout);
-                count = 0;
-            }
-        }
-        else
-        { // Write out previous run if exists
+            // Write out previous run if exists
             if (prev != EOF)
             {
                 fwrite(&count, sizeof(count), 1, stdout);
@@ -30,8 +20,20 @@ void compress_file(FILE *fp)
             }
             prev = c;
             count = 1;
+
+            continue;
+        }
+
+        count++;
+        // If count reaches max unsigned int, flush the run
+        if (count == 0xFFFFFFFF)
+        {
+            fwrite(&count, sizeof(count), 1, stdout);
+            fputc(prev, stdout);
+            count = 0;
         }
     }
+
     // Write out last run if exists
     if (prev != EOF)
     {

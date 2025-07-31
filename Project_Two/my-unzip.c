@@ -5,12 +5,11 @@
 void decompress_file(FILE *fp)
 {
     unsigned int count;
-    int c;
 
     // Read runs until fread fails (EOF)
     while (fread(&count, sizeof(count), 1, fp) == 1)
     {
-        c = fgetc(fp);
+        const int c = fgetc(fp);
         if (c == EOF)
         {
             fprintf(stderr, "my-unzip: invalid input file\n");
